@@ -21,15 +21,10 @@ class MyHomepage extends StatelessWidget {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               final user = FirebaseAuth.instance.currentUser;
-              if (user!.emailVerified) {
-                print("Verified User");
+              if (user?.emailVerified ?? false) {
+                return const Text("Done");
               } else {
-                print("You need to verify");
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const VerifyEmailView(),
-                  ),
-                );
+                const VerifyEmailView();
               }
               return const Text("Done");
             default:
