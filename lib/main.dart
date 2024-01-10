@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:registrastionapp/constants/routes.dart';
 import 'package:registrastionapp/views/login_view.dart';
+import 'package:registrastionapp/views/notesview.dart';
 import 'package:registrastionapp/views/registerview.dart';
+import 'package:registrastionapp/views/verifyemail.dart';
 // import '';
 import 'firebase_options.dart';
 
@@ -30,36 +33,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const LoginView(),
       routes: {
-        "/login": (context) => const LoginView(),
-        "/register": (context) => const RegisterView(),
+        loginRoute: (context) => const LoginView(),
+        registerRoute: (context) => const RegisterView(),
+        notesRoute: (context) => const NotesView(),
+        verifyEmailRoute: (context) => const VerifyEmailView()
       },
     );
   }
-}
-
-Future<bool> showLogOutDialog(BuildContext context) {
-  return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Sign Out"),
-          content: const Text("Are you sure you wanna Sign Out?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text("Cancel"),
-            ),
-          ],
-        );
-      }).then(
-    (value) => value ?? false,
-  );
 }

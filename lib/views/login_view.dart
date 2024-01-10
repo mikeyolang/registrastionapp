@@ -1,5 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:registrastionapp/constants/routes.dart';
+// import 'dart:developer' as devtools show log;
+
+import 'package:registrastionapp/Utilities/show_error.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -60,14 +66,37 @@ class _LoginViewState extends State<LoginView> {
                 final password = _password.text;
                 try {
                   await FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: email, password: password);
+                    email: email,
+                    password: password,
+                  );
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    notesRoute,
+                    (route) => false,
+                  );
                 } on FirebaseAuthException catch (e) {
                   print(e.code);
                   if (e.code == 'user-not-found') {
-                    print('No user found for that email.');
+                    await showErrorDialog(
+                      context,
+                      "User not found",
+                    );
                   } else if (e.code == 'wrong-password') {
-                    print('Wrong password provided for that user.');
+                    // devtools.log("Wrong Password");
+                    await showErrorDialog(
+                      context,
+                      "Wrong Credential",
+                    );
+                  } else {
+                    await showErrorDialog(
+                      context,
+                      "Error: ${e.code}",
+                    );
                   }
+                } catch (e) {
+                  await showErrorDialog(
+                    context,
+                    e.toString(),
+                  );
                 }
               },
               child: const Text("Log In"),
@@ -79,7 +108,7 @@ class _LoginViewState extends State<LoginView> {
           TextButton(
             onPressed: () {
               Navigator.of(context)
-                  .pushNamedAndRemoveUntil("/register", (route) => false);
+                  .pushNamedAndRemoveUntil(registerRoute, (route) => false);
             },
             child: const Text("Not Registered Yet, Sign up her!!"),
           ),

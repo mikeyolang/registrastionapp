@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
+import 'package:registrastionapp/constants/routes.dart';
 
-import 'package:registrastionapp/main.dart';
+import '../Utilities/logout_alert.dart';
 
 enum MenuAction { logout }
 
@@ -29,7 +28,7 @@ class _NotesViewState extends State<NotesView> {
                   await FirebaseAuth.instance.signOut();
                   // ignore: use_build_context_synchronously
                   Navigator.of(context)
-                      .pushNamedAndRemoveUntil("/logout/", (_) => false);
+                      .pushNamedAndRemoveUntil(loginRoute, (_) => false);
                 }
                 break;
             }
