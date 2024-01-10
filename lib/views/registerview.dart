@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:registrastionapp/Utilities/show_error.dart';
 import 'package:registrastionapp/constants/routes.dart';
 
+import 'dart:developer' as devtools show log;
+
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -71,9 +73,9 @@ class _RegisterViewState extends State<RegisterView> {
                   );
                   // Sending the Verification Email Directly after registration
                   final user = FirebaseAuth.instance.currentUser;
-                 await user?.sendEmailVerification();
+                  await user?.sendEmailVerification();
                   Navigator.of(context).pushNamed(verifyEmailRoute);
-                  print(userCredentials);
+                  devtools.log(userCredentials.toString());
                 } on FirebaseAuthException catch (e) {
                   print(e.code);
                   if (e.code == 'weak-password') {
