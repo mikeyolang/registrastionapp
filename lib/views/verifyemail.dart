@@ -22,6 +22,9 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
         children: [
           const Text(
               "We have sent you an Email Verification. Open it to Verify your Account"),
+          const SizedBox(
+            height: 20,
+          ),
           const Text(
               "If you havent received an Email Verification press the button below"),
           const SizedBox(

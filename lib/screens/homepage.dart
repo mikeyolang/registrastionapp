@@ -14,6 +14,7 @@ class MyHomepage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Homepage"),
+        backgroundColor: Colors.blue,
       ),
       body: FutureBuilder(
         future: Firebase.initializeApp(
