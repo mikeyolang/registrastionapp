@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:registrastionapp/firebase_options.dart';
+import 'package:registrastionapp/Services/Auth/auth_services.dart';
 import 'package:registrastionapp/views/login_view.dart';
 import 'package:registrastionapp/views/notesview.dart';
 import 'package:registrastionapp/views/verifyemail.dart';
@@ -17,15 +15,13 @@ class MyHomepage extends StatelessWidget {
         backgroundColor: Colors.blue,
       ),
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthService.firebase().initialize(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              final user = FirebaseAuth.instance.currentUser;
+              final user = AuthService.firebase().currentUser;
               if (user != null) {
-                if (user.emailVerified) {
+                if (user.isEmailVerified) {
                   return const NotesView();
                 }
                 return const VerifyEmailView();
