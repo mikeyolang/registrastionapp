@@ -12,17 +12,104 @@ class UnableToGetDocumentDirectory implements Exception {}
 
 class DatabaseIsNotOpenException implements Exception {}
 
+class CouldNotDeleteUserException implements Exception {}
+
+class UserAlreadyExistsException implements Exception {}
+
+class CouldNotFindUserException implements Exception {}
+
 // Openning the DataBase
 class NoteService {
   Database? db0;
+  Future<DatabaseUser> createUser({required String email}) async {
+    final db = getDatabaseOrThrow();
+    final results = await db.query(
+      userTable,
+      limit: 1,
+      where: "email = ?",
+      whereArgs: [email.toLowerCase()],
+    );
+    if (results.isNotEmpty) {
+      throw UserAlreadyExistsException();
+    }
+    final userId = await db.insert(userTable, {
+      emailColumn: email.toLowerCase(),
+    });
+    return DatabaseUser(
+      id: userId,
+      email: email.toLowerCase(),
+    );
+  }
 
   Future<void> closeDb() async {
-    ValueGetter db = db0;
+    var db = db0;
     if (db == null) {
       throw DatabaseIsNotOpenException();
     } else {
       await db.close();
       db = null;
+    }
+  }
+
+// Getting a usser
+  Future<DatabaseUser?> getUser({required String email}) async {
+    final db = getDatabaseOrThrow();
+    final results = await db.query(
+      userTable,
+      limit: 1,
+      where: "email = ?",
+      whereArgs: [email.toLowerCase()],
+    );
+    if (results.isEmpty) {
+      throw CouldNotFindUserException();
+    } else {
+      return DatabaseUser.fromRow(results.first);
+    }
+  }
+
+  // Creating a Note
+  Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
+    final db = getDatabaseOrThrow();
+// Make sure owner exists in the database with the correct credentials
+    final dbUser = await getUser(email: owner.email);
+    if (dbUser != owner) {
+      throw CouldNotFindUserException();
+    }
+    const text = "";
+    // create the note
+    final noteId = await db.insert(noteTable, {
+      userIdColumn: owner.id,
+      textColumn: text,
+      isSyncedWithCloudColumn: 0,
+    });
+    final note = DatabaseNote(
+      id: noteId,
+      userId: owner.id,
+      text: text,
+      isSyncedWithCloud: true,
+    );
+    return note;
+  }
+
+  Database getDatabaseOrThrow() {
+    final db = db0;
+    if (db == null) {
+      throw DatabaseIsNotOpenException();
+    } else {
+      return db;
+    }
+  }
+
+  // Deleting the User
+  Future<void> deleteuser({required String email}) async {
+    final db = getDatabaseOrThrow();
+    final deleteCount = await db.delete(
+      userTable,
+      where: "email = ?",
+      whereArgs: [email.toLowerCase()],
+    );
+    if (deleteCount != 1) {
+      throw CouldNotDeleteUserException();
     }
   }
 
