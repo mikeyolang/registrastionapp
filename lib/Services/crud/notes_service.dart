@@ -1,22 +1,13 @@
 // ignore_for_file: unnecessary_null_comparison
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:registrastionapp/Services/crud/constants.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 
-class DatabaseAlreadyOpenedException implements Exception {}
-
-class UnableToGetDocumentDirectory implements Exception {}
-
-class DatabaseIsNotOpenException implements Exception {}
-
-class CouldNotDeleteUserException implements Exception {}
-
-class UserAlreadyExistsException implements Exception {}
-
-class CouldNotFindUserException implements Exception {}
+import 'crud_exceptions.dart';
 
 // Openning the DataBase
 class NoteService {
@@ -89,6 +80,68 @@ class NoteService {
       isSyncedWithCloud: true,
     );
     return note;
+  }
+
+  // Delete a Note
+  Future<void> deleteNote({required int id}) async {
+    final db = getDatabaseOrThrow();
+    final deleteCount = await db.delete(
+      noteTable,
+      where: "id = ?",
+      whereArgs: [id],
+    );
+    if (deleteCount != 1) {
+      throw CouldNotDeleteNoteException();
+    }
+  }
+
+// Delete All Notes
+  Future<int> deleteAllNotes() async {
+    final db = getDatabaseOrThrow();
+    return await db.delete(noteTable);
+  }
+
+  // Fetching a specific Note
+  Future<DatabaseNote> getNote({required int id}) async {
+    final db = getDatabaseOrThrow();
+    final notes = await db.query(
+      noteTable,
+      limit: 1,
+      where: "id = ?",
+      whereArgs: [id],
+    );
+    if (notes.isEmpty) {
+      throw CouldNotFindNoteException();
+    } else {
+      return DatabaseNote.fromRow(notes.first);
+    }
+  }
+
+// Get all Notes
+  Future<Iterable<DatabaseNote>> getAllNotes() async {
+    final db = getDatabaseOrThrow();
+    final notes = await db.query(noteTable);
+    final results = notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
+
+    return results;
+  }
+
+// Updating existing Notes
+  Future<DatabaseNote> updateNote({
+    required DatabaseNote note,
+    required String text,
+  }) async {
+    final db = getDatabaseOrThrow();
+    await getNote(id: note.id);
+    final updateCount = await db.update(noteTable, {
+      textColumn: text,
+      isSyncedWithCloudColumn: 0,
+    });
+    if (updateCount == 0) {
+      throw CouldNotUpdateNoteException();
+    } else {
+      return await getNote(id: note.id);
+    }
   }
 
   Database getDatabaseOrThrow() {
