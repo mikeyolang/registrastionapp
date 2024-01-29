@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:registrastionapp/Services/Auth/auth_services.dart';
 import 'package:registrastionapp/views/login_view.dart';
-import 'package:registrastionapp/views/notesview.dart';
+import 'package:registrastionapp/views/notes/notesview.dart';
 import 'package:registrastionapp/views/verifyemail.dart';
 
 class MyHomepage extends StatelessWidget {
