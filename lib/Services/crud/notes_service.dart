@@ -17,15 +17,21 @@ class NoteService {
 
   // Creating a Local list of Notes
   List<DatabaseNote> _notes = [];
-  
+
 // Creating a Singleton of Notes Service
   static final NoteService _shared = NoteService._sharedInstance();
-  NoteService._sharedInstance();
+  NoteService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+     );
+  }
   factory NoteService() => _shared;
 
 // Creating a Notes Stream Controller
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
+
 // Reading and Caching Notes
   Future<void> _cacheNotes() async {
     final allNotes = await getAllNotes();
