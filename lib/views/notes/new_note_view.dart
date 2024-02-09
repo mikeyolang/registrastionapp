@@ -40,6 +40,7 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
   Future<DatabaseNote?> createNewNote() async {
+    // Checking if we have an existing note
     final existingNote = _notes;
     if (existingNote != null) {
       return existingNote;
@@ -51,7 +52,7 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
 // Deleting the note if it is empty
-  void _deleteIfTextIsEmpty() {
+  void _deleteNoteIfTextIsEmpty() {
     final note = _notes;
     if (_textController.text.isEmpty && note != null) {
       _noteService.deleteNote(id: note.id);
@@ -59,7 +60,7 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
   // Save note if text is not empty
-  void _saveIfTextIsNotEmoty() async {
+  void _saveNoteIfTextIsNotEmoty() async {
     final note = _notes;
     final text = _textController.text;
     if (note != null && text.isNotEmpty) {
@@ -72,8 +73,8 @@ class _NewNoteViewState extends State<NewNoteView> {
 
   @override
   void dispose() {
-    _saveIfTextIsNotEmoty();
-    _deleteIfTextIsEmpty();
+    _saveNoteIfTextIsNotEmoty();
+    _deleteNoteIfTextIsEmpty();
     _textController.dispose();
     super.dispose();
   }
@@ -84,7 +85,27 @@ class _NewNoteViewState extends State<NewNoteView> {
       appBar: AppBar(
         title: const Text("New Note"),
       ),
-      body: const Center(),
+      body: FutureBuilder(
+        future: createNewNote(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              _notes = snapshot.data as DatabaseNote;
+              _setupControllerListener();
+              return TextField(
+                controller: _textController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  hintText: "Write your Notes",
+                ),
+              );
+
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
     );
   }
 }
