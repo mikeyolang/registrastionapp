@@ -6,7 +6,7 @@ abstract class AuthProvider {
   // Function that logs in the user
   Future<AuthUser> logIn({
     required String email,
-    required String password,
+    required String password, 
   });
 
   // Function than can create a User
