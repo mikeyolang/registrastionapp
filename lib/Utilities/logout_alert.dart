@@ -1,28 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:registrastionapp/Utilities/dialogs/generic_dialog.dart';
 
 Future<bool> showLogOutDialog(BuildContext context) {
-  return showDialog(
+  return showGenericErrorDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Sign Out"),
-          content: const Text("Are you sure you wanna Sign Out?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text("Yes"),
-            ),
-          ],
-        );
-      }).then(
+      title: "Log Out",
+      content: "Are you sure you want to Log out",
+      optionBuilder: () => {"Cancel": false, "Log Out": true}).then(
     (value) => value ?? false,
   );
 }
