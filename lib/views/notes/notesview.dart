@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:registrastionapp/Services/Auth/auth_services.dart';
 import 'package:registrastionapp/Services/crud/notes_service.dart';
 import 'package:registrastionapp/constants/routes.dart';
+import 'package:registrastionapp/views/notes/notes_list_view.dart';
 
 import '../../Enums/menu_action.dart';
 import '../../Utilities/logout_alert.dart';
@@ -77,8 +78,13 @@ class _NotesViewState extends State<NotesView> {
                     case ConnectionState.active:
                       if (snapshot.hasData) {
                         final allNotes = snapshot.data as List<DatabaseNote>;
-
-                        return const Text("");
+                        return NotesListView(
+                            notes: allNotes,
+                            onDeleteNote: (note) async {
+                              await _noteService.deleteNote(
+                                id: note.id,
+                              );
+                            });
                       } else {
                         return const CircularProgressIndicator();
                       }
