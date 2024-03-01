@@ -7,7 +7,7 @@ import 'package:registrastionapp/views/registerview.dart';
 import 'package:registrastionapp/views/verifyemail.dart';
 // import '';
 import 'firebase_options.dart';
-import 'views/notes/new_note_view.dart';
+import 'views/notes/create_update_note_view.dart';
 
 // import 'package:registrastionapp/views/registerview.dart';
 
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         registerRoute: (context) => const RegisterView(),
         notesRoute: (context) => const NotesView(),
         verifyEmailRoute: (context) => const VerifyEmailView(),
-        newNoteRoute: (context) => const NewNoteView(),
+        creatOrUpdateNoteRoute: (context) => const NewNoteView(),
       },
     );
   }
