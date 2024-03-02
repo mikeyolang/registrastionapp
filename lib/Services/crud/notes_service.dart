@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:registrastionapp/Services/crud/constants.dart';
+import 'package:registrastionapp/extensions/list/filter.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
@@ -18,6 +19,9 @@ class NoteService {
   // Creating a Local list of Notes
   List<DatabaseNote> _notes = [];
 
+  // ignore: unused_field
+  DatabaseUser? _user;
+
 // Creating a Singleton of Notes Service
   static final NoteService _shared = NoteService._sharedInstance();
   NoteService._sharedInstance() {
@@ -25,7 +29,7 @@ class NoteService {
       onListen: () {
         _notesStreamController.sink.add(_notes);
       },
-     );
+    );
   }
   factory NoteService() => _shared;
 
@@ -40,7 +44,15 @@ class NoteService {
   }
 
   // Getting all notes
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeReadingAllNotes();
+        }
+      });
 
   Future<DatabaseUser> createUser({required String email}) async {
     await _ensureDbIsOpen();
@@ -175,10 +187,15 @@ class NoteService {
     await _ensureDbIsOpen();
     final db = getDatabaseOrThrow();
     await getNote(id: note.id);
-    final updateCount = await db.update(noteTable, {
-      textColumn: text,
-      isSyncedWithCloudColumn: 0,
-    });
+    final updateCount = await db.update(
+      noteTable,
+      {
+        textColumn: text,
+        isSyncedWithCloudColumn: 0,
+      },
+      where: "id =?",
+      whereArgs: [note.id],
+    );
     if (updateCount == 0) {
       throw CouldNotUpdateNoteException();
     } else {
@@ -191,13 +208,23 @@ class NoteService {
   }
 
   // Getting or creatig a user
-  Future<DatabaseUser?> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser?> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUse = true,
+  }) async {
     await _ensureDbIsOpen();
+
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUse) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUserException {
       final createdUser = await createUser(email: email);
+      if (setAsCurrentUse) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (e) {
       rethrow;
