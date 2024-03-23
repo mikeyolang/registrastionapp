@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:registrastionapp/Services/Auth/auth_services.dart';
+import 'package:registrastionapp/Services/Cloud/cloud_note.dart';
+import 'package:registrastionapp/Services/Cloud/firebase_cloud_storage.dart';
 import 'package:registrastionapp/Services/crud/notes_service.dart';
 import 'package:registrastionapp/constants/routes.dart';
 import 'package:registrastionapp/views/notes/notes_list_view.dart';
@@ -15,12 +17,12 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
-  late final NoteService _noteService;
-  String userEmail = AuthService.firebase().currentUser!.email!;
+  late final FirebaseCloudStorage _noteService;
+  String userId = AuthService.firebase().currentUser!.id!;
   @override
   void initState() {
-    _noteService = NoteService();
-    _noteService.openDb();
+    _noteService = FirebaseCloudStorage();
+    // _noteService.openDb();
     super.initState();
   }
 
@@ -33,78 +35,67 @@ class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Notes"),
-        backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(creatOrUpdateNoteRoute);
-            },
-            icon: const Icon(Icons.add),
-          ),
-          PopupMenuButton(onSelected: (value) async {
-            switch (value) {
-              case MenuAction.logout:
-                final shouldLogout = await showLogOutDialog(context);
-                if (shouldLogout) {
-                  await AuthService.firebase().logOut();
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(loginRoute, (_) => false);
-                }
-                break;
-            }
-          }, itemBuilder: (context) {
-            return [
-              const PopupMenuItem<MenuAction>(
-                value: MenuAction.logout,
-                child: Text("Log Out"),
-              ),
-            ];
-          })
-        ],
-      ),
-      body: FutureBuilder(
-        future: _noteService.getOrCreateUser(email: userEmail),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return StreamBuilder(
-                stream: _noteService.allNotes,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.active:
-                      if (snapshot.hasData) {
-                        final allNotes = snapshot.data as List<DatabaseNote>;
-                        return NotesListView(
-                            notes: allNotes,
-                            onTap: (note) {
-                              Navigator.of(context).pushNamed(
-                                creatOrUpdateNoteRoute,
-                                arguments: note,
-                              );
-                            },
-                            onDeleteNote: (note) async {
-                              await _noteService.deleteNote(
-                                id: note.id,
-                              );
-                            });
-                      } else {
-                        return const CircularProgressIndicator();
-                      }
-
-                    default:
-                      return const CircularProgressIndicator();
+        appBar: AppBar(
+          title: const Text("My Notes"),
+          backgroundColor: Colors.blue,
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(creatOrUpdateNoteRoute);
+              },
+              icon: const Icon(Icons.add),
+            ),
+            PopupMenuButton(onSelected: (value) async {
+              switch (value) {
+                case MenuAction.logout:
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    await AuthService.firebase().logOut();
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil(loginRoute, (_) => false);
                   }
-                },
-              );
-            default:
-              return const CircularProgressIndicator();
-          }
-        },
-      ),
-    );
+                  break;
+              }
+            }, itemBuilder: (context) {
+              return [
+                const PopupMenuItem<MenuAction>(
+                  value: MenuAction.logout,
+                  child: Text("Log Out"),
+                ),
+              ];
+            })
+          ],
+        ),
+        body: StreamBuilder(
+          stream: _noteService.allNotes(ownerUserId: userId),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+              case ConnectionState.active:
+                if (snapshot.hasData) {
+                  final allNotes = snapshot.data as Iterable<CloudNote>;
+                  return NotesListView(
+                      notes: allNotes,
+                      onTap: (note) {
+                        Navigator.of(context).pushNamed(
+                          creatOrUpdateNoteRoute,
+                          arguments: note,
+                        );
+                      },
+                      onDeleteNote: (note) async {
+                        await _noteService.deleteNote(
+                          documentId: note.documentId,
+                        );
+                      });
+                } else {
+                  return const CircularProgressIndicator();
+                }
+
+              default:
+                return const CircularProgressIndicator();
+            }
+          },
+        ));
   }
 }

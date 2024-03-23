@@ -39,11 +39,17 @@ class FirebaseCloudStorage {
           .where((note) => note.ownerUserId == ownerUserId));
 
 // Function to create a new note
-  void createNewNote({required String ownerUserId}) async {
-    await notes.add({
+  Future<CloudNote> createNewNote({required String ownerUserId}) async {
+    final document = await notes.add({
       ownerUserIdFieldName: ownerUserId,
       textFieldName: "",
     });
+    final fetchNote = await document.get();
+    return CloudNote(
+      documentId: fetchNote.id,
+      ownerUserId: ownerUserId,
+      text: "",
+    );
   }
 
   // Getting Notes by user Id
@@ -52,19 +58,14 @@ class FirebaseCloudStorage {
       return await notes
           .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
           .get()
-          .then((value) => value.docs.map((doc) {
-                return CloudNote(
-                  documentId: doc.id,
-                  ownerUserId: doc.data()[ownerUserIdFieldName] as String,
-                  text: doc.data()[textFieldName] as String,
-                );
-              }));
+          .then(
+              (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)));
     } catch (e) {
       throw CouldNotGetAllNotesException();
     }
   }
 
-  // Creating a singleton
+  // Creating a singleton of the class to be used throughout the app
   static final FirebaseCloudStorage _shared =
       FirebaseCloudStorage._sharedInstance();
   FirebaseCloudStorage._sharedInstance();
