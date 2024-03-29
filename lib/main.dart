@@ -1,11 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_bloc.dart';
+import 'package:registrastionapp/Services/Auth/firebase_auth_provider.dart';
 import 'package:registrastionapp/constants/routes.dart';
+import 'package:registrastionapp/screens/homepage.dart';
 import 'package:registrastionapp/views/login_view.dart';
 import 'package:registrastionapp/views/notes/notesview.dart';
 import 'package:registrastionapp/views/registerview.dart';
 import 'package:registrastionapp/views/verifyemail.dart';
-// import '';
 import 'firebase_options.dart';
 import 'views/notes/create_update_note_view.dart';
 
@@ -33,7 +36,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const RegisterView(),
+      home: BlocProvider<AuthBloc>(
+        create: (context) => AuthBloc(FirebaseAuthProvider()),
+        child: const MyHomepage(),
+      ),
       routes: {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
