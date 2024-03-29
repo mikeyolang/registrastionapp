@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:registrastionapp/Services/Auth/auth_exceptions.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_bloc.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_event.dart';
+import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_state.dart';
 import 'package:registrastionapp/constants/routes.dart';
 // import 'dart:developer' as devtools show log;
 
@@ -63,54 +64,40 @@ class _LoginViewState extends State<LoginView> {
             ),
           ),
           Center(
-            child: TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-                try {
+            child: BlocListener<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthStateLoggedOut) {
+                  if (state.exception is UserNotFoundException) {
+                    showErrorDialog(
+                      context,
+                      "User Not found",
+                    );
+                  } else if (state.exception is WrongPasswordException) {
+                    showErrorDialog(
+                      context,
+                      "Wrong Credentials",
+                    );
+                  } else if (state.exception is GenericAuthException) {
+                    showErrorDialog(
+                      context,
+                      "Authentication Error",
+                    );
+                  }
+                }
+              },
+              child: TextButton(
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
                   context.read<AuthBloc>().add(
                         AuthEventLogIn(
                           email: email,
                           password: password,
                         ),
                       );
-                  // await AuthService.firebase().logIn(
-                  //   email: email,
-                  //   password: password,
-                  // );
-                  // // Confirming The User First
-                  // final user = AuthService.firebase().currentUser;
-                  // if (user?.isEmailVerified ?? false) {
-                  //   // Users Email is verified
-                  //   Navigator.of(context).pushNamedAndRemoveUntil(
-                  //     notesRoute,
-                  //     (route) => false,
-                  //   );
-                  // } else {
-                  //   // User is not Verifieed
-                  //   Navigator.of(context).pushNamedAndRemoveUntil(
-                  //     verifyEmailRoute,
-                  //     (route) => false,
-                  //   );
-                  // }
-                } on UserNotFoundException {
-                  await showErrorDialog(
-                    context,
-                    "User not found",
-                  );
-                } on WrongPasswordException {
-                  await showErrorDialog(
-                    context,
-                    "Wrong Credential",
-                  );
-                } on GenericAuthException {
-                  await showErrorDialog(
-                    context,
-                    "Authentication Error",
-                  );
-                }
-              },
-              child: const Text("Log In"),
+                },
+                child: const Text("Log In"),
+              ),
             ),
           ),
           const SizedBox(
