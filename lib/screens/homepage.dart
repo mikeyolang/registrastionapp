@@ -5,6 +5,7 @@ import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_event.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_state.dart';
 import 'package:registrastionapp/views/login_view.dart';
 import 'package:registrastionapp/views/notes/notesview.dart';
+import 'package:registrastionapp/views/registerview.dart';
 import 'package:registrastionapp/views/verifyemail.dart';
 
 class MyHomepage extends StatelessWidget {
@@ -21,6 +22,8 @@ class MyHomepage extends StatelessWidget {
           return const VerifyEmailView();
         } else if (state is AuthStateLoggedOut) {
           return const LoginView();
+        } else if (state is AuthStateRegistering) {
+          return const RegisterView();
         } else {
           return const Scaffold(
             body: CircularProgressIndicator(),
@@ -29,7 +32,6 @@ class MyHomepage extends StatelessWidget {
       },
     );
 
-    
     // return FutureBuilder(
     //   future: AuthService.firebase().initialize(),
     //   builder: (context, snapshot) {
