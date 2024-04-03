@@ -1,42 +1,59 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart' show immutable;
-import '../../auth_user.dart';
+
+import 'package:equatable/equatable.dart';
+import 'package:registrastionapp/Services/Auth/auth_user.dart';
 
 @immutable
 abstract class AuthState {
-  const AuthState();
-}
-
-class AuthStateLogIn extends AuthState {
-  final AuthUser user;
-  const AuthStateLogIn(this.user);
-}
-
-class AuthStateNeedsVerification extends AuthState {
-  const AuthStateNeedsVerification();
-}
-
-// class AuthStateLoggedOut extends AuthState {
-//   final Exception? exception;
-//   final bool isLoading;
-//   const AuthStateLoggedOut(this.exception, this.isLoading);
-// }
-class AuthStateRegistering extends AuthState {
-  final Exception? exception;
-
-  const AuthStateRegistering({required this.exception});
+  final bool isLoading;
+  final String? loadingText;
+  const AuthState({
+    required this.isLoading,
+    this.loadingText = 'Please wait a moment',
+  });
 }
 
 class AuthStateUninitialized extends AuthState {
-  const AuthStateUninitialized();
+  const AuthStateUninitialized({required super.isLoading});
+}
+
+class AuthStateRegistering extends AuthState {
+  final Exception? exception;
+  // ignore: use_super_parameters
+  const AuthStateRegistering({
+    required this.exception,
+    required isLoading,
+  }) : super(isLoading: isLoading);
+}
+
+class AuthStateForgotPassword extends AuthState {
+  final Exception? exception;
+  final bool hasSentEmail;
+  const AuthStateForgotPassword({
+    required this.exception,
+    required this.hasSentEmail,
+    required super.isLoading,
+  });
+}
+
+class AuthStateLoggedIn extends AuthState {
+  final AuthUser user;
+  const AuthStateLoggedIn({
+    required this.user,
+    required super.isLoading,
+  });
+}
+
+class AuthStateNeedsVerification extends AuthState {
+  const AuthStateNeedsVerification({required super.isLoading});
 }
 
 class AuthStateLoggedOut extends AuthState with EquatableMixin {
   final Exception? exception;
-  final bool isLoading;
   const AuthStateLoggedOut({
     required this.exception,
-    required this.isLoading,
+    required super.isLoading,
+    super.loadingText = null,
   });
 
   @override
