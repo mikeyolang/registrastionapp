@@ -3,7 +3,6 @@ import 'package:registrastionapp/Services/Auth/auth_provider.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_event.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_state.dart';
 
-
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(AuthProvider provider)
       : super(const AuthStateUninitialized(isLoading: true)) {
@@ -24,7 +23,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (email == null) {
         return; // user just wants to go to forgot-password screen
       }
-
       // user wants to actually send a forgot-password email
       emit(const AuthStateForgotPassword(
         exception: null,
@@ -137,6 +135,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
       }
     });
+    // Register
+    on<AuthEventShouldRegister>(
+      (event, emit) {
+        emit(
+          const AuthStateRegistering(exception: null, isLoading: false),
+        );
+      },
+    );
     // log out
     on<AuthEventLogOut>((event, emit) async {
       try {

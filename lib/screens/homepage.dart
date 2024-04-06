@@ -4,6 +4,7 @@ import 'package:registrastionapp/Helpers/loading/loading_screen.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_bloc.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_event.dart';
 import 'package:registrastionapp/Services/Auth/bloc/bloc/auth_state.dart';
+import 'package:registrastionapp/views/forgot_password_view.dart';
 import 'package:registrastionapp/views/login_view.dart';
 import 'package:registrastionapp/views/notes/notesview.dart';
 import 'package:registrastionapp/views/registerview.dart';
@@ -35,6 +36,8 @@ class MyHomepage extends StatelessWidget {
           return const LoginView();
         } else if (state is AuthStateRegistering) {
           return const RegisterView();
+        } else if (state is AuthStateForgotPassword) {
+          return const ForgotPasswordView();
         } else {
           return const Scaffold(
             body: CircularProgressIndicator(),

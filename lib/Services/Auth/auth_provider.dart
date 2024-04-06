@@ -6,7 +6,7 @@ abstract class AuthProvider {
   // Function that logs in the user
   Future<AuthUser> logIn({
     required String email,
-    required String password, 
+    required String password,
   });
 
   // Function than can create a User
@@ -19,4 +19,7 @@ abstract class AuthProvider {
 
   // For sending a Email Verification
   Future<void> sendEmailVerification();
+
+  // Password Reset
+  Future<void> sendPasswordReset({required String toEmail});
 }

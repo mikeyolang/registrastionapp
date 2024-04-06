@@ -44,7 +44,7 @@ class _LoginViewState extends State<LoginView> {
           if (state.exception is UserNotFoundException) {
             showErrorDialog(
               context,
-              "User Not found",
+              "Cannot Find a User with the Credentials",
             );
           } else if (state.exception is WrongPasswordException) {
             showErrorDialog(
@@ -108,7 +108,17 @@ class _LoginViewState extends State<LoginView> {
                         const AuthEventShouldRegister(),
                       );
                 },
-                child: const Text("Not Registered Yet, Sign up her!!"),
+                child: const Text("Not Registered Yet, Sign up here"),
+              ),
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                        const AuthEventForgotPassword(),
+                      );
+                },
+                child: const Text("I forgot my password"),
               ),
             ),
           ],
