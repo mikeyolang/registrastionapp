@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:registrastionapp/Services/Cloud/cloud_note.dart';
 import 'package:registrastionapp/Services/Cloud/cloud_storage_constants.dart';
@@ -33,10 +32,18 @@ class FirebaseCloudStorage {
   }
 
   // Get all notes for a specific user
-  Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) =>
-      notes.snapshots().map((event) => event.docs
-          .map((doc) => CloudNote.fromSnapshot(doc))
-          .where((note) => note.ownerUserId == ownerUserId));
+  Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) {
+    final allNotes = notes
+        .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
+        .snapshots()
+        .map(
+          (event) => event.docs.map(
+            (doc) => CloudNote.fromSnapshot(doc),
+          ),
+        );
+
+    return allNotes;
+  }
 
 // Function to create a new note
   Future<CloudNote> createNewNote({required String ownerUserId}) async {
